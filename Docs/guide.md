@@ -161,26 +161,54 @@ Stop with `Ctrl+C` or `docker compose down`.
 
 ### macOS Setup with XQuartz
 
-After installing and configuring XQuartz (see Prerequisites), allow connections from your host:
+After installing and configuring XQuartz (see Prerequisites):
 
+**Step 1: Start XQuartz**
 ```bash
-# Allow connections from localhost
+open -a XQuartz
+```
+
+**Step 2: Allow network connections (run on your Mac, not in Docker)**
+```bash
+# Allow connections from localhost and local IP
+xhost + 127.0.0.1
 xhost + localhost
 ```
 
-Run a container with display forwarding:
-
+**Step 3: Run container with display forwarding**
 ```bash
 docker run -it \
   -e DISPLAY=host.docker.internal:0 \
   -e QT_X11_NO_MITSHM=1 \
+  -e LIBGL_ALWAYS_INDIRECT=1 \
   osrf/ros:jazzy-desktop
 ```
 
-Inside the container, test with RViz2:
+**Step 4: Test with RViz2 inside the container**
 ```bash
+source /opt/ros/jazzy/setup.bash
 rviz2
 ```
+
+**If you get "could not connect to display" errors:**
+
+1. Verify XQuartz is running: `ps aux | grep XQuartz`
+2. Check XQuartz Preferences → Security → "Allow connections from network clients" is checked
+3. Restart XQuartz after changing security settings
+4. Re-run the `xhost` commands after restarting XQuartz
+5. Try using your Mac's IP instead:
+   ```bash
+   # On your Mac, get your IP
+   IP=$(ifconfig en0 | grep inet | awk '$1=="inet" {print $2}')
+   xhost + $IP
+   
+   # Then run container with that IP
+   docker run -it \
+     -e DISPLAY=$IP:0 \
+     -e QT_X11_NO_MITSHM=1 \
+     -e LIBGL_ALWAYS_INDIRECT=1 \
+     osrf/ros:jazzy-desktop
+   ```
 
 ### Linux Setup
 
@@ -344,6 +372,7 @@ For macOS with GUI support, use this version instead:
   "containerEnv": {
     "DISPLAY": "host.docker.internal:0",
     "QT_X11_NO_MITSHM": "1",
+    "LIBGL_ALWAYS_INDIRECT": "1",
     "ROS_DOMAIN_ID": "42",
     "ROS_AUTOMATIC_DISCOVERY_RANGE": "LOCALHOST"
   },
@@ -420,9 +449,24 @@ export ROS_DOMAIN_ID=42
 
 ### GUI Not Displaying on macOS
 
-1. Ensure XQuartz is running
-2. Run `xhost + localhost` on your host
-3. Check DISPLAY is set: `echo $DISPLAY` should show `host.docker.internal:0`
+**"could not connect to display" or "Could not load Qt platform plugin xcb" errors:**
+
+1. Ensure XQuartz is running: `open -a XQuartz`
+2. Check XQuartz Preferences → Security → "Allow connections from network clients" is **checked**
+3. **Restart XQuartz** after changing security settings (quit and reopen)
+4. Run these commands on your Mac (not in Docker):
+   ```bash
+   xhost + 127.0.0.1
+   xhost + localhost
+   ```
+5. Verify DISPLAY inside container: `echo $DISPLAY` should show `host.docker.internal:0`
+6. If still failing, try with your Mac's IP:
+   ```bash
+   # On Mac
+   export IP=$(ifconfig en0 | grep inet | awk '$1=="inet" {print $2}')
+   xhost + $IP
+   # Then use -e DISPLAY=$IP:0 when running docker
+   ```
 
 ### Permission Denied Errors
 
