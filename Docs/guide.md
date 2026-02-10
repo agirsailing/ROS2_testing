@@ -67,14 +67,14 @@ After installation, **restart your computer**, then configure XQuartz:
 
 ### Available Docker Images
 
-The Open Source Robotics Foundation (OSRF) provides official ROS2 Jazzy images:
+Docker Hub hosts official ROS2 Jazzy images:
 
 | Image | Description | Size |
 |-------|-------------|------|
-| `osrf/ros:jazzy-ros-core` | Minimal ROS2 core | Smallest |
-| `osrf/ros:jazzy-ros-base` | Base ROS2 + common dependencies | Medium |
+| `ros:jazzy-ros-core` | Minimal ROS2 core | Smallest |
+| `ros:jazzy-ros-base` | Base ROS2 + common dependencies | Medium |
 | `osrf/ros:jazzy-desktop` | Desktop tools (RViz2, demos) | Large |
-| `osrf/ros:jazzy-perception` | Perception libraries (OpenCV, PCL) | Large |
+| `ros:jazzy-perception` | Perception libraries (OpenCV, PCL) | Large |
 
 ### Pull and Run
 
